@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Sistema de Usuarios</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: linear-gradient(135deg, #6a1b9a, #8e24aa);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .container {
+      background: white;
+      padding: 1.5rem;
+
+      border-radius: 12px;
+      width: 350px;
+      box-shadow: 0px 6px 18px rgba(0,0,0,0.2);
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 1rem;
+      color: #6a1b9a;
+    }
+    input {
+      width: 100%;
+      padding: 0.8rem;
+      margin: 0.5rem 0;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      width: 100%;
+      padding: 0.8rem;
+      background: #6a1b9a;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-top: 0.5rem;
+      transition: 0.3s;
+    }
+    button:hover {
+      background: #4a148c;
+    }
+    .tabs {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 1rem;
+      border-bottom: 2px solid #eee;
+    }
+    .tab {
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      font-weight: bold;
+      color: #888;
+      transition: 0.3s;
+    }
+    .tab.active {
+      color: #6a1b9a;
+      border-bottom: 2px solid #6a1b9a;
+    }
+    .form {
+      display: none;
+    }
+    .form.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="tabs">
+      <div class="tab active" onclick="showForm('loginForm')">Login</div>
+      <div class="tab" onclick="showForm('registerForm')">Registro</div>
+    </div>
+
+    <!-- Login -->
+    <div id="loginForm" class="form active">
+      <h1>Iniciar Sesión</h1>
+      <input type="text" id="loginUser" placeholder="Usuario" required>
+      <input type="password" id="loginPass" placeholder="Contraseña" required>
+      <button onclick="login()">Ingresar</button>
+    </div>
+
+    <!-- Registro -->
+    <div id="registerForm" class="form">
+      <h1>Registro</h1>
+      <input type="text" id="regUser" placeholder="Usuario" required>
+      <input type="password" id="regPass" placeholder="Contraseña" required>
+      <button onclick="register()">Registrar</button>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "http://localhost:3000/api/auth"; // Cambia al puerto de tu backend
+
+    function showForm(id) {
+      document.querySelectorAll('.form').forEach(f => f.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.getElementById(id).classList.add('active');
+      document.querySelector(`.tab[onclick="showForm('${id}')"]`).classList.add('active');
+    }
+
+    async function register() {
+      const username = document.getElementById("regUser").value;
+      const password = document.getElementById("regPass").value;
+
+      const res = await fetch(`${API_URL}/register`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      alert(data.message || "Registrado");
+    }
+
+    async function login() {
+      const username = document.getElementById("loginUser").value;
+      const password = document.getElementById("loginPass").value;
+
+      const res = await fetch(`${API_URL}/login`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await res.json();
+      if (data.token) {
+        alert("Login correcto");
+        localStorage.setItem("token", data.token);
+        window.location.href = "/dashboard";
+      } else {
+        alert(data.message || "Error en login");
+      }
+    }
+  </script>
+</body>
+</html>
+
+
